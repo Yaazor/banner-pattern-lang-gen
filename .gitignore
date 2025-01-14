@@ -23,6 +23,6 @@
 go.work
 
 # distributed lang files
-# result
+result/
 
 config.json
