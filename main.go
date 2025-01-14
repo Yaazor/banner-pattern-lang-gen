@@ -20,6 +20,9 @@ func main() {
 		LangKey:        "block.minecraft.banner.namespace.key",
 		TranslatedName: "Pattern",
 		LangFR:         false,
+		TranslatedLangs: []string{
+			"en_us",
+		},
 	}
 
 	clearResultDir(workingDir + "/result")
@@ -53,7 +56,34 @@ func main() {
 		_ = txtc.Sync()
 	}
 
-	fmt.Println(config.TranslatedName)
+	for _, lang := range config.TranslatedLangs {
+		createLangFile(workingDir+"/result/"+lang, config)
+	}
+
+}
+
+func createLangFile(path string, pattern app.PatternConfig) {
+	lang, _ := os.Create(path + ".json")
+	defer lang.Close()
+	translations := make(map[string]string)
+
+	w := app.CreateColorWrapper(pattern)
+
+	for color, t := range w.Colors {
+		key := pattern.LangKey + "." + color
+		var v string
+		if pattern.LangFR {
+			v = pattern.TranslatedName + " (" + t + ")"
+		} else {
+			v = t + " " + pattern.TranslatedName
+		}
+
+		translations[key] = v
+	}
+
+	i, _ := json.Marshal(translations)
+
+	lang.Write(i)
 }
 
 func clearResultDir(dir string) {
